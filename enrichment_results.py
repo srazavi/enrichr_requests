@@ -1,5 +1,10 @@
 import json
 import requests
+import sys
+import os
+
+#user file
+import gene_filterer
 
 
 library_list = ['BioPlanet_2019', 'KEGG_2016', 'GO_Biological_Process_2018',
@@ -7,12 +12,6 @@ library_list = ['BioPlanet_2019', 'KEGG_2016', 'GO_Biological_Process_2018',
 				'Human_Phenotype_Ontology', 'Panther_2016', 'Reactome_2016',
 				'WikiPathways_2016']
 
-test_gene_list = \
-	 ['PHF14', 'RBM3', 'MSL1', 'PHF21A', 'ARL10', 'INSR', 'JADE2', 'P2RX7',
-     'LINC00662', 'CCDC101', 'PPM1B', 'KANSL1L', 'CRYZL1', 'ANAPC16', 'TMCC1',
-     'CDH8', 'RBM11', 'CNPY2', 'HSPA1L', 'CUL2', 'PLBD2', 'LARP7', 'TECPR2', 
-     'ZNF302', 'CUX1', 'MOB2', 'CYTH2', 'SEC22C', 'EIF4E3', 'ROBO2',
-     'ADAMTS9-AS2', 'CXXC1', 'LINC01314', 'ATF7', 'ATP5F1']
 
 def get_user_list_id(gene_list):
 	ENRICHR_URL = 'http://maayanlab.cloud/Enrichr/addList'
@@ -33,7 +32,7 @@ def get_user_list_id(gene_list):
 def download_results_file(user_list_id, library):
 	ENRICHR_URL = 'http://maayanlab.cloud/Enrichr/export'
 	query_string = '?userListId=%s&filename=%s&backgroundType=%s'
-	filename = library
+	filename = 'write/'+library
 	gene_set_library = library
 
 	url = ENRICHR_URL + query_string % (user_list_id, filename, gene_set_library)
@@ -45,8 +44,15 @@ def download_results_file(user_list_id, library):
 	            f.write(chunk)
 
 def main():
-	for library in library_list:
-		download_results_file(get_user_list_id(test_gene_list), library)
+	# skip first command line argument
+	file_name = sys.argv[1]
+	gene_list = gene_filterer.get_gene_list(file_name)
+
+	#check that gene_list is not empty
+	if gene_list:
+		os.mkdir('write') if not os.path.exists('write') else None
+		for library in library_list:
+			download_results_file(get_user_list_id(gene_list), library)
 
 
 if __name__ == '__main__':
