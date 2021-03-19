@@ -30,7 +30,7 @@ def get_user_list_id(gene_list):
 	data = json.loads(response.text)
 	return data['userListId']
 
-def download_file(user_list_id, library):
+def download_results_file(user_list_id, library):
 	ENRICHR_URL = 'http://maayanlab.cloud/Enrichr/export'
 	query_string = '?userListId=%s&filename=%s&backgroundType=%s'
 	filename = library
@@ -46,7 +46,7 @@ def download_file(user_list_id, library):
 
 def main():
 	for library in library_list:
-		download_file(get_user_list_id(test_gene_list), library)
+		download_results_file(get_user_list_id(test_gene_list), library)
 
 
 if __name__ == '__main__':
