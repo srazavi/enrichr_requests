@@ -33,7 +33,7 @@ def get_user_list_id(gene_list):
 def download_file(user_list_id, library):
 	ENRICHR_URL = 'http://maayanlab.cloud/Enrichr/export'
 	query_string = '?userListId=%s&filename=%s&backgroundType=%s'
-	filename = 'example_enrichment'
+	filename = library
 	gene_set_library = library
 
 	url = ENRICHR_URL + query_string % (user_list_id, filename, gene_set_library)
@@ -44,4 +44,10 @@ def download_file(user_list_id, library):
 	        if chunk:
 	            f.write(chunk)
 
-download_file(get_user_list_id(test_gene_list), 'KEGG_2016')
+def main():
+	for library in library_list:
+		download_file(get_user_list_id(test_gene_list), library)
+
+
+if __name__ == '__main__':
+	main()
