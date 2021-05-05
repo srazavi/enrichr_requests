@@ -29,10 +29,10 @@ def get_user_list_id(gene_list):
     data = json.loads(response.text)
     return data['userListId']
 
-def download_results_file(user_list_id, library):
+def download_results_file(user_list_id, library, file_prefix):
     ENRICHR_URL = 'http://maayanlab.cloud/Enrichr/export'
     query_string = '?userListId=%s&filename=%s&backgroundType=%s'
-    filename = 'write/'+library
+    filename = 'write/'+file_prefix+library
     gene_set_library = library
 
     url = ENRICHR_URL + query_string % (user_list_id, filename, gene_set_library)
@@ -43,19 +43,27 @@ def download_results_file(user_list_id, library):
             if chunk:
                 f.write(chunk)
 
+def get_file_name_no_ext(file_path):
+    file_name = os.path.split(file_path)[1]
+    return file_name.split('.')[0]
+
 def main():
     # skip first command line argument
-    file_name = sys.argv[1]
-    gene_list = gene_filterer.get_gene_list(file_name, 'positive')
+    file_path = sys.argv[1]
 
-    #check that gene_list is not empty
-    if gene_list:
-        print(gene_list)
-        os.mkdir('write') if not os.path.exists('write') else None
-        for library in library_list:
-            download_results_file(get_user_list_id(gene_list), library)
-    else:
-        print("No genes matched the criteria.")
+    for direction in ('positive', 'negative'):
+    	#get gene list
+	    gene_list = gene_filterer.get_gene_list(file_path, direction)
+	    file_name_prefix = get_file_name_no_ext(file_path) + '_' + direction + '_'
+
+	    #check that gene_list is not empty
+	    if gene_list:
+	        print(gene_list)
+	        os.mkdir('write') if not os.path.exists('write') else None
+	        for library in library_list:
+	            download_results_file(get_user_list_id(gene_list), library, file_name_prefix)
+	    else:
+	        print("No genes matched the criteria in the "+direction+" direction.")
 
 
 if __name__ == '__main__':
